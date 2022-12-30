@@ -19,7 +19,7 @@
 #           version: '16.10'
 #           # If you are using yarn, change the line below from "npm" to "yarn"
 #           pkg-manager: npm
-version: 2.1
+version: 2
 jobs:
   build:
     docker:
