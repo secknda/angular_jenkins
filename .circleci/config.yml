@@ -1,4 +1,4 @@
-# # This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
+# #This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 # version: 2.1
 
 # # Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
@@ -19,39 +19,39 @@
 #           version: '16.10'
 #           # If you are using yarn, change the line below from "npm" to "yarn"
 #           pkg-manager: npm
-# # version: 2
-# # jobs:
-# #   build:
-# #     docker:
-# #       - image: node:latest
-# #     steps:
-# #       - checkout
-# #       - run: npm install
-# #       - run: npm test
-# #       - run: npm run build
 version: 2.1
-orbs:
-  browser-tools: circleci/browser-tools@1.2.3
 jobs:
   build:
-    working_directory: ~/ng-project
     docker:
-      - image: cimg/node:16.13.1-browsers
+      - image: node:latest
     steps:
-      - browser-tools/install-chrome
-      - browser-tools/install-chromedriver
-      - run:
-          command: |
-            google-chrome --version
-            chromedriver --version
-          name: Check install
       - checkout
-      - restore_cache:
-          key: ng-project-{{ .Branch }}-{{ checksum "package-lock.json" }}
       - run: npm install
-      - save_cache:
-          key: ng-project-{{ .Branch }}-{{ checksum "package-lock.json" }}
-          paths:
-            - "node_modules"
+      - run: npm test
       - run: npm run build
-      # - run: npm run test
+# version: 2.1
+# orbs:
+#   browser-tools: circleci/browser-tools@1.2.3
+# jobs:
+#   build:
+#     working_directory: ~/ng-project
+#     docker:
+#       - image: cimg/node:16.13.1-browsers
+#     steps:
+#       - browser-tools/install-chrome
+#       - browser-tools/install-chromedriver
+#       - run:
+#           command: |
+#             google-chrome --version
+#             chromedriver --version
+#           name: Check install
+#       - checkout
+#       - restore_cache:
+#           key: ng-project-{{ .Branch }}-{{ checksum "package-lock.json" }}
+#       - run: npm install
+#       - save_cache:
+#           key: ng-project-{{ .Branch }}-{{ checksum "package-lock.json" }}
+#           paths:
+#             - "node_modules"
+#       - run: npm run build
+#       # - run: npm run test
