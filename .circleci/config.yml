@@ -53,4 +53,5 @@ jobs:
           key: ng-project-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - "node_modules"
+      - run: npm run build
       # - run: npm run test
