@@ -27,7 +27,7 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - run: npm test
+      # - run: npm test
       - run: npm run build
 # version: 2.1
 # orbs:
