@@ -4,19 +4,19 @@ jobs:
   build:
     docker:
       - image: cimg/node:16.10
-        auth:
-            username: seckndanane
-            password: Babacar98
+        # auth:
+        #     username: seckndanane
+        #     password: Babacar98
     steps:
       - setup_remote_docker:
           version: 20.10.14
       - checkout
       - run: npm install
       - run: npm run build
-      # - run: docker login
+      - run: docker login -u seckndanane -p Babacar98
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app my-angular-app
-      - run: docker push seckndanane/my-angular-app:tagname
+      - run: docker push seckndanane/my-angular-app:my-angular-app
 
 
 
