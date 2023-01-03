@@ -13,6 +13,7 @@ jobs:
       - checkout
       - run: npm install
       - run: npm run build
+      - run: ng test --watch=false
       - run: docker login -u seckndanane -p Babacar98
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app seckndanane/my-angular-app
@@ -31,7 +32,7 @@ jobs:
       - run:
           name: Deploy to Play with Docker
           command: |
-            # Deploy the Docker image to the Play with Docker node
+            #Deploy the Docker image to the Play with Docker node
             docker run -p 8080:80 seckndanane/my-angular-app
       - run:
           name: Check deployment
