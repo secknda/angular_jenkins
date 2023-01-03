@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - run: ng build --prod
+      - run: npm build --prod
       - run: docker login -u $seckndanane -p $Babacar98
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app $seckndanane/my-angular-app
