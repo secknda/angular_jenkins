@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/node:19.3.0
+      - image: cimg/node:16.10
         auth:
             username: seckndanane
             password: Babacar98
