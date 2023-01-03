@@ -1,20 +1,40 @@
-# Use the node:14 image as the base image
-FROM node:14
+FROM node:8-alpine
 
-# Set the working directory to the app's root
-WORKDIR /app
+# Create app directory
+WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json files to the working directory
-COPY package*.json ./
-
-# Install the dependencies
+# Install app dependencies
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy the rest of the app's source code to the working directory
+# Bundle app source
 COPY . .
 
-# Expose the app's port
-EXPOSE 3000
+# Build app
+RUN npm run build
 
-# Run the app
-CMD ["npm", "start"]
+EXPOSE 80
+CMD [ "npm", "start" ]
+
+
+# # Use the node:14 image as the base image
+# FROM node:14
+
+# # Set the working directory to the app's root
+# WORKDIR /app
+
+# # Copy the package.json and package-lock.json files to the working directory
+# COPY package*.json ./
+
+# # Install the dependencies
+# RUN npm install
+
+# # Copy the rest of the app's source code to the working directory
+# COPY . .
+
+# # Expose the app's port
+# EXPOSE 3000
+
+# # Run the app
+# CMD ["npm", "start"]
+
