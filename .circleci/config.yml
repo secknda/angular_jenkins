@@ -16,7 +16,7 @@ jobs:
       - run: docker login -u seckndanane -p Babacar98
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app my-angular-app
-      - run: docker push seckndanane/my-angular-app:my-angular-app
+      - run: docker push my-angular-app:my-angular-app
 
 
 
