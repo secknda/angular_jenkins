@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run: npm install
       - run: npm build --prod
-      - run: docker login
+      # - run: docker login
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app my-angular-app
       - run: docker push my-angular-appdocker
