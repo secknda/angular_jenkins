@@ -12,7 +12,7 @@ jobs:
           version: 20.10.14
       - checkout
       - run: npm install
-      - run: ng build --prod
+      - run: npm run build
       # - run: docker login
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app my-angular-app
