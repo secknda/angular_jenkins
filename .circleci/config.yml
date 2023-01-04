@@ -27,7 +27,7 @@ jobs:
       - run: docker push seckndanane/my-angular-app
   terraform-deploy:
     docker:
-      - image: hashicorp/terraform:latest
+      - image: hashicorp/terraform-k8s
     steps:
       - checkout
       - run: terraform init
