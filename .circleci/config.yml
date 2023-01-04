@@ -1,5 +1,12 @@
 version: 2.1
 
+workflows:
+  build-and-deploy:
+    jobs:
+      - build
+      - terraform-deploy:
+          requires:
+            - build
 jobs:
   build:
     docker:
@@ -26,6 +33,7 @@ jobs:
       - run: terraform init
       - run: terraform plan
       - run: terraform apply
+
   # deploy:
   #   docker:
   #     - image: cimg/python:3.10.2
