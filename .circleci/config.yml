@@ -9,6 +9,9 @@ workflows:
             - build
 jobs:
   build:
+    machine:
+      native:
+        git:false
     docker:
       - image: cimg/node:16.10
         # auth:
