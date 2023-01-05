@@ -1,12 +1,12 @@
 version: 2.1
 
-# workflows:
-#   build-and-deploy:
-#     jobs:
-#       - build
-#       - terraform-deploy:
-#           requires:
-#             - build
+workflows:
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
 jobs:
   build:
     docker:
@@ -25,7 +25,28 @@ jobs:
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app seckndanane/my-angular-app
       - run: docker push seckndanane/my-angular-app
-  # terraform-deploy:
+  deploy:
+    docker:
+      - image: cimg/python:3.10.2
+    steps:
+      - run:
+          name: Connect to Play with Docker via SSH
+          command: |
+            # Get the public IP address of the Play with Docker node
+            export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
+            # Connect to the Play with Docker node via SSH
+            ssh ip172-18-0-94-cere7ov91rrg00cdnimg
+      - run:
+          name: Deploy to Play with Docker
+          command: |
+            #Deploy the Docker image to the Play with Docker node
+            docker run -p 8080:80 seckndanane/my-angular-app
+      - run:
+          name: Check deployment
+          command: |
+            # Check if the deployment was successful by accessing the application through the public IP address
+            curl http://$PWD_IP:8080
+      # terraform-deploy:
   #   docker:
   #     - image: hashicorp/terraform-k8s
   #   steps:
@@ -33,28 +54,6 @@ jobs:
   #     - run: terraform init
   #     - run: terraform plan
   #     - run: terraform apply
-
-  # deploy:
-  #   docker:
-  #     - image: cimg/python:3.10.2
-  #   steps:
-  #     - run:
-  #         name: Connect to Play with Docker via SSH
-  #         command: |
-  #           # Get the public IP address of the Play with Docker node
-  #           export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
-  #           # Connect to the Play with Docker node via SSH
-  #           ssh ip172-18-0-57-ceq26u791rrg00fasu0g
-  #     - run:
-  #         name: Deploy to Play with Docker
-  #         command: |
-  #           #Deploy the Docker image to the Play with Docker node
-  #           docker run -p 8080:80 seckndanane/my-angular-app
-  #     - run:
-  #         name: Check deployment
-  #         command: |
-  #           # Check if the deployment was successful by accessing the application through the public IP address
-  #           curl http://$PWD_IP:8080
 
 
 # #This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
