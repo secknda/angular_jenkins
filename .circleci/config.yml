@@ -33,7 +33,8 @@ jobs:
           name: Connect to Play with Docker via SSH
           command: |
             # Get the public IP address of the Play with Docker node
-            export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
+            #export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
+            export PWD_IP=192.168.0.7
             # Connect to the Play with Docker node via SSH
             ssh ip172-18-0-94-cere7ov91rrg00cdnimg
       - run:
