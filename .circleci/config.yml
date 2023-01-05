@@ -27,7 +27,7 @@ jobs:
       - run: docker push seckndanane/my-angular-app
   deploy:
     docker:
-      - image: cimg/python:3.10.2
+      - image: cimg/node:16.10
     steps:
       - run:
           name: Connect to Play with Docker via SSH
