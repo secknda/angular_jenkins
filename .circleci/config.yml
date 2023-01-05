@@ -1,17 +1,14 @@
 version: 2.1
 
-workflows:
-  build-and-deploy:
-    jobs:
-      - build
-      - terraform-deploy:
-          requires:
-            - build
+# workflows:
+#   build-and-deploy:
+#     jobs:
+#       - build
+#       - terraform-deploy:
+#           requires:
+#             - build
 jobs:
   build:
-    machine:
-      native:
-        git:false
     docker:
       - image: cimg/node:16.10
         # auth:
@@ -28,14 +25,14 @@ jobs:
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app seckndanane/my-angular-app
       - run: docker push seckndanane/my-angular-app
-  terraform-deploy:
-    docker:
-      - image: hashicorp/terraform-k8s
-    steps:
-      - checkout
-      - run: terraform init
-      - run: terraform plan
-      - run: terraform apply
+  # terraform-deploy:
+  #   docker:
+  #     - image: hashicorp/terraform-k8s
+  #   steps:
+  #     - checkout
+  #     - run: terraform init
+  #     - run: terraform plan
+  #     - run: terraform apply
 
   # deploy:
   #   docker:
