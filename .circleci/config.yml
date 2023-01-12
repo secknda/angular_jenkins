@@ -1,12 +1,13 @@
 version: 2.1
 
-# workflows:
-#   build-and-deploy:
-#     jobs:
-#       - build
-#       - deploy:
-#           requires:
-#             - build
+workflows:
+  build-and-deploy:
+    jobs:
+      - build
+      - provision
+      # - deploy:
+      #     requires:
+      #       - build
 jobs:
   build:
     docker:
@@ -25,6 +26,24 @@ jobs:
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
       - run: docker push $DOCKER_LOGIN/my-angular-app
+
+provision:
+    steps:
+      - run: wget https://releases.hashicorp.com/terraform/0.14.8/terraform_0.14.8_linux_amd64.zip
+      - run: unzip terraform_0.14.8_linux_amd64.zip -d /usr/local/bin/
+      - run: terraform init
+      - run: terraform apply -auto-approve
+export:
+    steps:
+      - run: export DEPLOYMENT_URL=$(terraform output deployment_url)
+deploy:
+    steps:
+      - run: terraform import vercel_deployment.example $DEPLOYMENT_URL
+      - run: terraform apply -var "vercel_token=${VERCEL_TOKEN}" -auto-approve
+    # requires:
+    #   - build
+    #   - provision
+    #   - export
   # deploy:
   #   docker:
   #     - image: cimg/node:16.10
