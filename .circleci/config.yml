@@ -1,12 +1,12 @@
 version: 2.1
 
-workflows:
-  build-and-deploy:
-    jobs:
-      - build
-      - deploy:
-          requires:
-            - build
+# workflows:
+#   build-and-deploy:
+#     jobs:
+#       - build
+#       - deploy:
+#           requires:
+#             - build
 jobs:
   build:
     docker:
@@ -21,32 +21,32 @@ jobs:
       - run: npm install
       - run: npm run build
       # - run: npm test --watch=false
-      - run: docker login -u seckndanane -p Babacar98
+      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
       - run: docker build -t my-angular-app .
-      - run: docker tag my-angular-app seckndanane/my-angular-app
-      - run: docker push seckndanane/my-angular-app
-  deploy:
-    docker:
-      - image: cimg/node:16.10
-    steps:
-      - run:
-          name: Connect to Play with Docker via SSH
-          command: |
-            # Get the public IP address of the Play with Docker node
-            #export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
-            export PWD_IP=192.168.0.7
-            # Connect to the Play with Docker node via SSH
-            ssh ip172-18-0-94-cere7ov91rrg00cdnimg
-      - run:
-          name: Deploy to Play with Docker
-          command: |
-            #Deploy the Docker image to the Play with Docker node
-            docker run -p 8080:80 seckndanane/my-angular-app
-      - run:
-          name: Check deployment
-          command: |
-            # Check if the deployment was successful by accessing the application through the public IP address
-            curl http://$PWD_IP:8080
+      - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
+      - run: docker push $DOCKER_LOGIN/my-angular-app
+  # deploy:
+  #   docker:
+  #     - image: cimg/node:16.10
+  #   steps:
+  #     - run:
+  #         name: Connect to Play with Docker via SSH
+  #         command: |
+  #           # Get the public IP address of the Play with Docker node
+  #           #export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
+  #           export PWD_IP=192.168.0.7
+  #           # Connect to the Play with Docker node via SSH
+  #           ssh ip172-18-0-94-cere7ov91rrg00cdnimg
+  #     - run:
+  #         name: Deploy to Play with Docker
+  #         command: |
+  #           #Deploy the Docker image to the Play with Docker node
+  #           docker run -p 8080:80 seckndanane/my-angular-app
+  #     - run:
+  #         name: Check deployment
+  #         command: |
+  #           # Check if the deployment was successful by accessing the application through the public IP address
+  #           curl http://$PWD_IP:8080
       # terraform-deploy:
   #   docker:
   #     - image: hashicorp/terraform-k8s
