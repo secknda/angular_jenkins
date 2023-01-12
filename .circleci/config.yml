@@ -1,10 +1,11 @@
 version: 2.1
 
 workflows:
-  build-and-deploy:
+  build-and-provision:
     jobs:
       - build
-      - provision
+      - deploy-to-k8s
+      # - provision
       # - deploy:
       #     requires:
       #       - build
@@ -26,24 +27,32 @@ jobs:
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
       - run: docker push $DOCKER_LOGIN/my-angular-app
+  deploy-to-k8s:
+    steps:
+      - run: helm init --client-only
+      - run: helm upgrade --install my-angular-app --set image.repository=$DOCKER_LOGIN/my-angular-app --namespace my-namespace charts/my-angular-app
 
-provision:
-    steps:
-      - run: wget https://releases.hashicorp.com/terraform/0.14.8/terraform_0.14.8_linux_amd64.zip
-      - run: unzip terraform_0.14.8_linux_amd64.zip -d /usr/local/bin/
-      - run: terraform init
-      - run: terraform apply -auto-approve
-export:
-    steps:
-      - run: export DEPLOYMENT_URL=$(terraform output deployment_url)
-deploy:
-    steps:
-      - run: terraform import vercel_deployment.example $DEPLOYMENT_URL
-      - run: terraform apply -var "vercel_token=${VERCEL_TOKEN}" -auto-approve
-    # requires:
-    #   - build
-    #   - provision
-    #   - export
+  # provision:
+  #   docker:
+  #     - image: cimg/node:16.10
+  #   steps:
+  #     - setup_remote_docker:
+  #         version: 20.10.14
+  #     - run: wget https://releases.hashicorp.com/terraform/0.14.8/terraform_0.14.8_linux_amd64.zip
+  #     - run: unzip terraform_0.14.8_linux_amd64.zip -d /usr/local/bin/
+  #     - run: terraform init
+  #     - run: terraform apply -auto-approve
+  # export:
+  #   steps:
+  #     - run: export DEPLOYMENT_URL=$(terraform output deployment_url)
+  # deploy:
+  #   steps:
+  #     - run: terraform import vercel_deployment.example $DEPLOYMENT_URL
+  #     - run: terraform apply -var "vercel_token=${VERCEL_TOKEN}" -auto-approve
+  #   requires:
+  #     - build
+  #     - provision
+  #     - export
   # deploy:
   #   docker:
   #     - image: cimg/node:16.10
