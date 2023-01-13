@@ -32,17 +32,9 @@ jobs:
     docker:
       - image: cimg/node:16.10
     steps:
-      - run: 
-         name: Install and configure Docker Swarm CLI
-         command: |
-           apk add --no-cache docker-cli
-           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_LOGIN" --password-stdin
-           echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_LOGIN" --password-stdin
-      - run: 
-         name: Deploy the application
-         command: |
-           docker stack deploy --compose-file=docker-compose.yml my-angular-app
-  # deploy-to-k8s:
+      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+      - run: docker stack deploy -c docker-compose.yml my-angular-app
+
   #   executor: kubernetes
   #   steps:
   #     - run: helm init --client-only
