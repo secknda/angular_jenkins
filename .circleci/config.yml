@@ -30,7 +30,7 @@ jobs:
 
   deploy-to-swarm:
     docker:
-      - image: my-angular-app
+      - image: cimg/node:16.10
     steps:
       - run: 
          name: Install and configure Docker Swarm CLI
