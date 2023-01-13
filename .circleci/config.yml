@@ -33,7 +33,7 @@ jobs:
       - image: cimg/node:16.10
     steps:
       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-      - run: docker stack deploy -c docker-compose.yml my-angular-app
+      - run: docker stack deploy -c ./docker-compose.yml my-angular-app
 
   #   executor: kubernetes
   #   steps:
