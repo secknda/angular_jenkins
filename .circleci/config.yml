@@ -29,7 +29,8 @@ jobs:
       - run: docker push $DOCKER_LOGIN/my-angular-app
 
   deploy-to-swarm:
-    executor: local
+    docker:
+      - image: my-angular-app
     steps:
       - run: 
          name: Install and configure Docker Swarm CLI
