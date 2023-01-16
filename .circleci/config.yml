@@ -4,11 +4,9 @@ workflows:
   build-and-provision:
     jobs:
       - build
-      - deploy-to-swarm
-      # - provision
-      # - deploy:
-      #     requires:
-      #       - build
+      - deploy-to-swarm:
+          requires:
+            - build
 jobs:
   build:
     docker:
