@@ -6,9 +6,9 @@ workflows:
   build-and-provision:
     jobs:
       - build
-      - deploy-to-swarm
-          # requires:
-          #   - build
+      - deploy-to-swarm:
+          requires:
+            - build
 jobs:
   build:
     docker:
@@ -36,7 +36,7 @@ jobs:
           version: 20.10.14
       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
       - run: docker swarm init
-      - run: docker stack deploy -c ~/project/.circleci/docker-stack.yml --with-registry-auth my-angular-app
+      - run: docker stack deploy -c ~/project/.circleci/docker-compose.yml --with-registry-auth my-angular-app
 
 
   #   executor: kubernetes
