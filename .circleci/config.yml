@@ -1,5 +1,7 @@
 version: 2.1
-
+orbs:
+  docker: circleci/docker@1.4.0
+  swarmpit: topmonks/swarmpit@1.0.0
 workflows:
   build-and-provision:
     jobs:
@@ -32,7 +34,8 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-      - run: docker stack deploy -c docker-compose.yml my-angular-app
+      - run: docker stack deploy -c ../app_jenkins/docker-compose.yml my-angular-app
+
 
   #   executor: kubernetes
   #   steps:
