@@ -13,7 +13,7 @@ resource "aws_subnet" "my_subnet" {
 
 resource "aws_security_group" "my_security_group" {
   name = "my_security_group"
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = vpc-08eb065c91b62c95b
 
   ingress {
     from_port = 80
