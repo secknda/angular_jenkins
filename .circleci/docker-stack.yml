@@ -1,0 +1,11 @@
+version: '3'
+services:
+  web:
+    image: seckndanane/my-angular-app:latest
+    ports:
+      - "4200:4200"
+    environment:
+      - NG_APP_ENV=production
+    volumes:
+      - .:/app
+    command: "npm start"
