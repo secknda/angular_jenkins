@@ -35,7 +35,7 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-      - run: docker stack deploy -c 'D:\Master 1\angular\workspace\app_jenkins\docker-stack.yml' --with-registry-auth my-angular-app
+      - run: docker stack deploy -c ~/project/.circleci/docker-stack.yml --with-registry-auth my-angular-app
 
 
   #   executor: kubernetes
