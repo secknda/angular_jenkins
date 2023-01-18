@@ -1,42 +1,99 @@
 version: 2.1
-# orbs:
-#   docker: circleci/docker@1.4.0
-#   swarmpit: topmonks/swarmpit@1.0.0
+orbs:
+  terraform: hashicorp/terraform@1.0.0
+
 workflows:
-  build-and-provision:
+  build-and-deploy:
     jobs:
       - build
-      - deploy-to-swarm:
+      - terraform-init:
           requires:
             - build
+      - terraform-plan:
+          requires:
+            - terraform-init
+      - terraform-apply:
+          requires:
+            - terraform-plan
+      - deploy-app:
+          requires:
+            - terraform-apply
+
 jobs:
   build:
     docker:
       - image: cimg/node:16.10
-        # auth:
-        #     username: seckndanane
-        #     password: Babacar98
     steps:
-      - setup_remote_docker:
-          version: 20.10.14
       - checkout
       - run: npm install
       - run: npm run build
-      # - run: npm test --watch=false
-      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
       - run: docker push $DOCKER_LOGIN/my-angular-app
-  deploy-to-swarm:
-    docker:
-      - image: cimg/node:16.10
+  
+  terraform-init:
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.14
-      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-      - run: docker swarm init
-      - run: docker stack deploy -c ~/project/docker-compose.yml --with-registry-auth my-angular-app
+      - context: terraform
+      - terraform/init
+  
+  terraform-plan:
+    steps:
+      - checkout
+      - context: terraform
+      - terraform/plan
+  
+  terraform-apply:
+    steps:
+      - checkout
+      - context: terraform
+      - terraform/apply
+  
+  deploy-app:
+    steps:
+      - run: ssh -i ~/projet/pk_UBUNTU.pem terraform@$EC2_PUBLIC_IP "docker stack deploy -c ~/project/docker-compose.yml my-angular-app"
+
+
+
+# version: 2.1
+# # orbs:
+# #   docker: circleci/docker@1.4.0
+# #   swarmpit: topmonks/swarmpit@1.0.0
+# workflows:
+#   build-and-provision:
+#     jobs:
+#       - build
+#       - deploy-to-swarm:
+#           requires:
+#             - build
+# jobs:
+#   build:
+#     docker:
+#       - image: cimg/node:16.10
+#         # auth:
+#         #     username: seckndanane
+#         #     password: Babacar98
+#     steps:
+#       - setup_remote_docker:
+#           version: 20.10.14
+#       - checkout
+#       - run: npm install
+#       - run: npm run build
+#       # - run: npm test --watch=false
+#       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+#       - run: docker build -t my-angular-app .
+#       - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
+#       - run: docker push $DOCKER_LOGIN/my-angular-app
+#   deploy-to-swarm:
+#     docker:
+#       - image: cimg/node:16.10
+#     steps:
+#       - checkout
+#       - setup_remote_docker:
+#           version: 20.10.14
+#       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+#       - run: docker swarm init
+#       - run: docker stack deploy -c ~/project/docker-compose.yml --with-registry-auth my-angular-app
 
 
   #   executor: kubernetes
