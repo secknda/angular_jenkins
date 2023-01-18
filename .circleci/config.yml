@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  terraform: hashicorp/terraform@1.0.0
+  terraform: circleci/terraform@3.1
 
 workflows:
   build-and-deploy:
@@ -32,24 +32,32 @@ jobs:
       - run: docker push $DOCKER_LOGIN/my-angular-app
   
   terraform-init:
+    docker:
+      - image: cimg/node:16.10
     steps:
       - checkout
       - context: terraform
       - terraform/init
   
   terraform-plan:
+    docker:
+      - image: cimg/node:16.10
     steps:
       - checkout
       - context: terraform
       - terraform/plan
   
   terraform-apply:
+    docker:
+      - image: cimg/node:16.10
     steps:
       - checkout
       - context: terraform
       - terraform/apply
   
   deploy-app:
+    docker:
+      - image: cimg/node:16.10
     steps:
       - run: ssh -i ~/projet/pk_UBUNTU.pem terraform@$EC2_PUBLIC_IP "docker stack deploy -c ~/project/docker-compose.yml my-angular-app"
 
