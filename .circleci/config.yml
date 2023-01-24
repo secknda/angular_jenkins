@@ -30,37 +30,38 @@ jobs:
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
       - run: docker push $DOCKER_LOGIN/my-angular-app
-  
-  terraform-init:
+
+  terraform/fmt:
+    context: terraform
     docker:
-      - image: cimg/node:16.10
+      - image: hashicorp/terraform:latest
     steps:
-      - checkout
-      - context: terraform
-      - terraform/init
-  
-  terraform-plan:
+      - run: terraform fmt -check=true -diff=true
+  terraform/validate:
+    context: terraform
     docker:
-      - image: cimg/node:16.10
+      - image: hashicorp/terraform:latest
     steps:
-      - checkout
-      - context: terraform
-      - terraform/plan
-  
-  terraform-apply:
+      - run: terraform validate
+  terraform/plan:
+    context: terraform
     docker:
-      - image: cimg/node:16.10
+      - image: hashicorp/terraform:latest
     steps:
-      - checkout
-      - context: terraform
-      - terraform/apply
-  
+      - run: terraform plan
+  terraform/apply:
+    context: terraform
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - run: terraform apply
+
   deploy-app:
+    context: terraform
     docker:
       - image: cimg/node:16.10
     steps:
       - run: ssh -i ~/projet/pk_UBUNTU.pem terraform@$EC2_PUBLIC_IP "docker stack deploy -c ~/project/docker-compose.yml my-angular-app"
-
 
 
 # version: 2.1
