@@ -45,6 +45,7 @@ jobs:
       - checkout
       - run: npm install
       - run: npm run build
+      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
       - run: docker build -t my-angular-app .
       - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
       - run: docker push $DOCKER_LOGIN/my-angular-app
