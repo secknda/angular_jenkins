@@ -30,7 +30,6 @@ workflows:
           requires:
             - terraform/plan
       - deploy-app:
-          checkout: true
           context: terraform
           requires:
             - terraform/apply
