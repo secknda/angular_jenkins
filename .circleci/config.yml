@@ -2,22 +2,22 @@ version: 2.1
 orbs:
   terraform: circleci/terraform@3.1
 
-workflows:
-  build-and-deploy:
-    jobs:
-      - build
-      - terraform-init:
-          requires:
-            - build
-      - terraform-plan:
-          requires:
-            - terraform-init
-      - terraform-apply:
-          requires:
-            - terraform-plan
-      - deploy-app:
-          requires:
-            - terraform-apply
+# workflows:
+#   build-and-deploy:
+#     jobs:
+#       - build
+#       - terraform-init:
+#           requires:
+#             - build
+#       - terraform-plan:
+#           requires:
+#             - terraform-init
+#       - terraform-apply:
+#           requires:
+#             - terraform-plan
+#       - deploy-app:
+#           requires:
+#             - terraform-apply
 
 jobs:
   build:
@@ -32,32 +32,51 @@ jobs:
       - run: docker push $DOCKER_LOGIN/my-angular-app
 
   terraform/fmt:
+    checkout: true
     context: terraform
+    requires:
+      - build
     docker:
       - image: hashicorp/terraform:latest
     steps:
       - run: terraform fmt -check=true -diff=true
   terraform/validate:
+    checkout: true
     context: terraform
+    requires:
+      - terraform/fmt
     docker:
       - image: hashicorp/terraform:latest
     steps:
       - run: terraform validate
   terraform/plan:
+    checkout: true
     context: terraform
+    persist-workspace: true
+    requires:
+      - terraform/validate
     docker:
       - image: hashicorp/terraform:latest
     steps:
       - run: terraform plan
   terraform/apply:
+    cattach-workspace: true
     context: terraform
+    filters:
+      branches:
+        only: main
+    requires:
+      - terraform/plan
     docker:
       - image: hashicorp/terraform:latest
     steps:
       - run: terraform apply
 
   deploy-app:
+    checkout: true
     context: terraform
+    requires:
+      - terraform/apply
     docker:
       - image: cimg/node:16.10
     steps:
