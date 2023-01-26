@@ -1,81 +1,146 @@
 version: 2.1
-orbs:
-  terraform: circleci/terraform@3.1
-workflows:
-  deploy_infrastructure:
+
+workflows: # Define a Workflow running the build job, then the deploy job
+  build-deploy:
     jobs:
-      - build
-      - terraform/fmt:
-          checkout: true
-          context: terraform
-          requires:
+        - build
+        - deploy:
+            requires:
             - build
-      - terraform/validate:
-          checkout: true
-          context: terraform
-          requires:
-            - terraform/fmt
-      - terraform/plan:
-          checkout: true
-          context: terraform
-          persist-workspace: true
-          requires:
-            - terraform/validate
-      - terraform/apply:
-          attach-workspace: true
-          context: terraform
-          filters:
-            branches:
-              only: main
-          requires:
-            - terraform/plan
-      - deploy-app:
-          context: terraform
-          requires:
-            - terraform/apply
+            filters:
+              branches:
+                only: main # Only deploys when the commit is on the Main branch
 
 jobs:
   build:
-    docker:
-      - image: cimg/node:16.10
-    parallelism: 4
+    docker: # Specify executor for running build job - this example uses a Docker container
+      - image: my-angular-app # Specify docker image to use
+        auth:
+            username: $DOCKER_LOGIN 
+            password: $DOCKER_PASSWORD  # context / project UI env-var reference
+                           # build job steps omitted for brevity
     steps:
-      - setup_remote_docker:
-          version: 20.10.14
-      - checkout
-      - run: npm install
-      - run: npm run build
-      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-      - run: docker build -t my-angular-app .
-      - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
-      - run: docker push $DOCKER_LOGIN/my-angular-app
+      - run: 
+          name: Build the image
+          command: docker build -t my-angular-app .
+      - run:
+          name: Tag the image
+          command: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
+      - run: 
+          name: Push The image to Docker Hub
+          command: docker push $DOCKER_LOGIN/my-angular-app
+  deploy:
+    docker: # Specify executor for running deploy job
+        - image: my-angular-app # Specify docker image to use
+          auth:
+            username: $DOCKER_LOGIN
+            password: $DOCKER_PASSWORD  # context / project UI env-var reference
+    steps:
+        - run: # Install the AWS CLI if it is not already included in the docker image
+            name: Install awscli
+            command: sudo pip install awscli
+        - run: # Deploy to S3 using the sync command
+            name: Deploy to S3
+            command: aws s3 sync D:\Master2\Workspace memoire\prj\dist s3://mybucket/myproject
 
-  terraform/fmt:
-    docker:
-      - image: hashicorp/terraform:latest
-    steps:
-      - run: terraform fmt -check=true -diff=true
-  terraform/validate:
-    docker:
-      - image: hashicorp/terraform:latest
-    steps:
-      - run: terraform validate
-  terraform/plan:
-    docker:
-      - image: hashicorp/terraform:latest
-    steps:
-      - run: terraform plan
-  terraform/apply:
-    docker:
-      - image: hashicorp/terraform:latest
-    steps:
-      - run: terraform apply
 
-  deploy-app:
-    docker:
-      - image: cimg/node:16.10
-    steps:
-      - run: ssh -i ~/projet/pk_UBUNTU.pem terraform@$EC2_PUBLIC_IP "docker stack deploy -c ~/project/docker-compose.yml my-angular-app"
+
+# version: 2.1
+# orbs:
+#   terraform: circleci/terraform@3.1
+# workflows:
+#   deploy_infrastructure:
+#     jobs:
+#       - build
+#       - terraform/fmt:
+#           checkout: true
+#           context: terraform
+#           requires:
+#             - build
+#       - terraform/validate:
+#           checkout: true
+#           context: terraform
+#           requires:
+#             - terraform/fmt
+#       - terraform/plan:
+#           checkout: true
+#           context: terraform
+#           persist-workspace: true
+#           requires:
+#             - terraform/validate
+#       - terraform/apply:
+#           attach-workspace: true
+#           context: terraform
+#           filters:
+#             branches:
+#               only: main
+#           requires:
+#             - terraform/plan
+#       - deploy-app:
+#           context: terraform
+#           requires:
+#             - terraform/apply
+
+# jobs:
+#   build:
+#     docker:
+#       - image: cimg/node:16.10
+#     # parallelism: 4
+#     steps:
+#       - setup_remote_docker:
+#           version: 20.10.14
+#       - checkout
+#       - run: npm install
+#       - run: npm run build
+  
+#   test:
+#     docker:
+#       - image: cimg/node:16.10
+#     steps:
+#       - attach_workspace:
+#           at: .
+#       - checkout
+#       - run: npm run test
+#       - persist_to_workspace:
+#           root: .
+#           paths:
+#             - .
+
+#   packages:
+#     docker:
+#       - image: cimg/node:16.10
+#     steps:
+#       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+#       - run: docker build -t my-angular-app .
+#       - run: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
+#       - run: docker push $DOCKER_LOGIN/my-angular-app
+
+#   terraform/fmt:
+#     docker:
+#       - image: hashicorp/terraform:latest
+#     steps:
+#       - run: terraform fmt -check=true -diff=true
+#   terraform/validate:
+#     docker:
+#       - image: hashicorp/terraform:latest
+#     steps:
+#       - run: terraform validate
+#   terraform/plan:
+#     docker:
+#       - image: hashicorp/terraform:latest
+#     steps:
+#       - run: terraform plan
+#   terraform/apply:
+#     docker:
+#       - image: hashicorp/terraform:latest
+#     steps:
+#       - run: terraform apply
+
+#   deploy-app:
+#     docker:
+#       - image: cimg/node:16.10
+#     steps:
+#       - run: ssh -i ~/projet/pk_UBUNTU.pem terraform@$EC2_PUBLIC_IP "docker stack deploy -c ~/project/docker-compose.yml my-angular-app"
 
 
 # version: 2.1
