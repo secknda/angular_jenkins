@@ -14,7 +14,7 @@ workflows: # Define a Workflow running the build job, then the deploy job
 jobs:
   build:
     docker: # Specify executor for running build job - this example uses a Docker container
-      - image: my-angular-app # Specify docker image to use
+      - image: cimg/node:16.10 # Specify docker image to use
         auth:
             username: $DOCKER_LOGIN 
             password: $DOCKER_PASSWORD  # context / project UI env-var reference
@@ -31,7 +31,7 @@ jobs:
           command: docker push $DOCKER_LOGIN/my-angular-app
   deploy:
     docker: # Specify executor for running deploy job
-        - image: my-angular-app # Specify docker image to use
+        - image: my-angular-app:latest # Specify docker image to use
           auth:
             username: $DOCKER_LOGIN
             password: $DOCKER_PASSWORD  # context / project UI env-var reference
