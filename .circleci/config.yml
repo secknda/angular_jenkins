@@ -1,47 +1,98 @@
-version: 2.1
+version: 2.1 # 2.1 config required to use orbs
 
-workflows: # Define a Workflow running the build job, then the deploy job
-  build-deploy:
-    jobs:
-        - build
-        - deploy:
-            requires:
-            - build
-            filters:
-              branches:
-                only: main # Only deploys when the commit is on the Main branch
+orbs:
+  aws-ecr: circleci/aws-ecr@8.1.2 # use the AWS ECR orb
+  aws-ecs: circleci/aws-ecs@3.2.0 # use the AWS ECS orb
+  aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
 
 jobs:
-  build:
-    docker: # Specify executor for running build job - this example uses a Docker container
-      - image: cimg/node:16.10 # Specify docker image to use
-        auth:
-            username: $DOCKER_LOGIN 
-            password: $DOCKER_PASSWORD  # context / project UI env-var reference
-                           # build job steps omitted for brevity
+  verify-deployment:
+    executor: aws-cli/default
     steps:
-      - run: 
-          name: Build the image
-          command: docker build -t my-angular-app .
+      - aws-cli/install
+      - aws-cli/setup:
+          aws-access-key-id: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_DEFAULT_REGION
+          aws-secret-access-key: AWS_DEFAULT_REGION
       - run:
-          name: Tag the image
-          command: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
-      - run: 
-          name: Push The image to Docker Hub
-          command: docker push $DOCKER_LOGIN/my-angular-app
-  deploy:
-    docker: # Specify executor for running deploy job
-        - image: my-angular-app:latest # Specify docker image to use
-          auth:
-            username: $DOCKER_LOGIN
-            password: $DOCKER_PASSWORD  # context / project UI env-var reference
-    steps:
-        - run: # Install the AWS CLI if it is not already included in the docker image
-            name: Install awscli
-            command: sudo pip install awscli
-        - run: # Deploy to S3 using the sync command
-            name: Deploy to S3
-            command: aws s3 sync D:\Master2\Workspace memoire\prj\dist s3://mybucket/myproject
+          name: Get last task definition
+          command: >
+            TASK_DEFINITION_ARN=$(aws ecs describe-task-definition \
+                --task-definition ${MY_APP_PREFIX}-service \
+                --output text \
+                --query 'taskDefinition.taskDefinitionArn')
+            echo "export TASK_DEFINITION_ARN='${TASK_DEFINITION_ARN}'" >>
+            "$BASH_ENV"
+      - aws-ecs/verify-revision-is-deployed:
+          family: '${MY_APP_PREFIX}-service'
+          cluster: '${MY_APP_PREFIX}-cluster'
+          task-definition-arn: '${TASK_DEFINITION_ARN}'
+
+workflows:
+  build-and-deploy:
+    jobs:
+      - aws-ecr/build-and-push-image: # orb built-in job
+          repo: '${MY_APP_PREFIX}'
+          tag: '${CIRCLE_SHA1}'
+      - aws-ecs/deploy-service-update: # orb built-in job
+          requires:
+            - aws-ecr/build-and-push-image
+          family: '${MY_APP_PREFIX}-service'
+          cluster: '${MY_APP_PREFIX}-cluster'
+          container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}'
+      - verify-deployment:
+          requires:
+            - aws-ecs/deploy-service-update
+
+
+
+
+
+# version: 2.1
+
+# workflows: # Define a Workflow running the build job, then the deploy job
+#   build-deploy:
+#     jobs:
+#         # - build
+#         - deploy:
+#             # requires:
+#             # - build
+#             filters:
+#               branches:
+#                 only: main # Only deploys when the commit is on the Main branch
+
+# jobs:
+#   build:
+#     docker: # Specify executor for running build job - this example uses a Docker container
+#       - image: cimg/node:16.10 # Specify docker image to use
+#         auth:
+#             username: $DOCKER_LOGIN 
+#             password: $DOCKER_PASSWORD  # context / project UI env-var reference
+#                            # build job steps omitted for brevity
+#     steps:
+    
+#       - run: 
+#           name: Build the image
+#           command: docker build -t my-angular-app .
+#       - run:
+#           name: Tag the image
+#           command: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
+#       - run: 
+#           name: Push The image to Docker Hub
+#           command: docker push $DOCKER_LOGIN/my-angular-app
+#   deploy:
+#     docker: # Specify executor for running deploy job
+#         - image: my-angular-app:latest # Specify docker image to use
+#           auth:
+#             username: $DOCKER_LOGIN
+#             password: $DOCKER_PASSWORD  # context / project UI env-var reference
+#     steps:
+#         - run: # Install the AWS CLI if it is not already included in the docker image
+#             name: Install awscli
+#             command: sudo pip install awscli
+#         - run: # Deploy to S3 using the sync command
+#             name: Deploy to S3
+#             command: aws s3 sync D:\Master2\Workspace memoire\prj\dist s3://mybucket/myproject
 
 
 
