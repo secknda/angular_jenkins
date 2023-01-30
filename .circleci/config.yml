@@ -87,6 +87,7 @@ workflows:
           # account-url: AWS_ACCOUNT_ID
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-ecr-registry-id: AWS_ECR_REGISTRY_ID
           create-repo: true
           dockerfile: "Dockerfile"
           # region: AWS_DEFAULT_REGION
