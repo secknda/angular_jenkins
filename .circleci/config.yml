@@ -89,7 +89,7 @@ workflows:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           create-repo: true
           dockerfile: "Dockerfile"
-          aws-region: AWS_DEFAULT_REGION
+          region: AWS_DEFAULT_REGION
       - aws-ecs/deploy-service-update: # orb built-in job
           requires:
             - aws-ecr/build-and-push-image
