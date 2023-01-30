@@ -9,7 +9,7 @@ jobs:
   # build:
   #   docker:
   #     # specify the version you desire here
-  #     - image: cimg/node:16.10 
+  #     - image: cimg/node:16.10
 
   #     # Specify service dependencies here if necessary
   #     # CircleCI maintains a library of pre-built images
@@ -36,21 +36,21 @@ jobs:
   #   docker: # Specify executor for running build job - this example uses a Docker container
   #     - image: cimg/node:16.10 # Specify docker image to use
   #       auth:
-  #           username: $DOCKER_LOGIN 
+  #           username: $DOCKER_LOGIN
   #           password: $DOCKER_PASSWORD  # context / project UI env-var reference
   #                          # build job steps omitted for brevity
   #   steps:
-    
+
   #     - run:
   #         name: Authentification Client setup_remote_docker
   #         command: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 260248989732.dkr.ecr.us-east-1.amazonaws.com
-  #     - run: 
+  #     - run:
   #         name: Build the image
   #         command: docker build -t my-angular-app .
   #     - run:
   #         name: Tag the image
   #         command: docker tag my-angular-app:latest 260248989732.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
-  #     - run: 
+  #     - run:
   #         name: Push The image to AWS ECR
   #         command: docker push 260248989732.dkr.ecr.us-east-1.amazonaws.com/my-angular-app:latest
   verify-deployment:
@@ -71,9 +71,9 @@ jobs:
             echo "export TASK_DEFINITION_ARN='${TASK_DEFINITION_ARN}'" >>
             "$BASH_ENV"
       - aws-ecs/verify-revision-is-deployed:
-          family: '${MY_APP_PREFIX}-service'
-          cluster: '${MY_APP_PREFIX}-cluster'
-          task-definition-arn: '${TASK_DEFINITION_ARN}'
+          family: "${MY_APP_PREFIX}-service"
+          cluster: "${MY_APP_PREFIX}-cluster"
+          task-definition-arn: "${TASK_DEFINITION_ARN}"
 
 workflows:
   build-and-deploy:
@@ -82,28 +82,23 @@ workflows:
       - aws-ecr/build-and-push-image: # orb built-in job
           # requires:
           #   - build
-          repo: '${MY_APP_PREFIX}'
-          tag: '${CIRCLE_SHA1}'
+          repo: "${MY_APP_PREFIX}"
+          tag: "${CIRCLE_SHA1}"
           # account-url: AWS_ACCOUNT_ID
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           create-repo: true
           dockerfile: "Dockerfile"
-          region: AWS_REGION
+          aws-region: AWS_DEFAULT_REGION
       - aws-ecs/deploy-service-update: # orb built-in job
           requires:
             - aws-ecr/build-and-push-image
-          family: '${MY_APP_PREFIX}-service'
-          cluster: '${MY_APP_PREFIX}-cluster'
-          container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}'
+          family: "${MY_APP_PREFIX}-service"
+          cluster: "${MY_APP_PREFIX}-cluster"
+          container-image-name-updates: "container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}"
       - verify-deployment:
           requires:
             - aws-ecs/deploy-service-update
-
-
-
-
-
 # version: 2.1
 
 # workflows: # Define a Workflow running the build job, then the deploy job
@@ -122,18 +117,18 @@ workflows:
 #     docker: # Specify executor for running build job - this example uses a Docker container
 #       - image: cimg/node:16.10 # Specify docker image to use
 #         auth:
-#             username: $DOCKER_LOGIN 
+#             username: $DOCKER_LOGIN
 #             password: $DOCKER_PASSWORD  # context / project UI env-var reference
 #                            # build job steps omitted for brevity
 #     steps:
-    
-#       - run: 
+
+#       - run:
 #           name: Build the image
 #           command: docker build -t my-angular-app .
 #       - run:
 #           name: Tag the image
 #           command: docker tag my-angular-app $DOCKER_LOGIN/my-angular-app
-#       - run: 
+#       - run:
 #           name: Push The image to Docker Hub
 #           command: docker push $DOCKER_LOGIN/my-angular-app
 #   deploy:
@@ -149,8 +144,6 @@ workflows:
 #         - run: # Deploy to S3 using the sync command
 #             name: Deploy to S3
 #             command: aws s3 sync D:\Master2\Workspace memoire\prj\dist s3://mybucket/myproject
-
-
 
 # version: 2.1
 # orbs:
@@ -199,7 +192,7 @@ workflows:
 #       - checkout
 #       - run: npm install
 #       - run: npm run build
-  
+
 #   test:
 #     docker:
 #       - image: cimg/node:16.10
@@ -249,7 +242,6 @@ workflows:
 #     steps:
 #       - run: ssh -i ~/projet/pk_UBUNTU.pem terraform@$EC2_PUBLIC_IP "docker stack deploy -c ~/project/docker-compose.yml my-angular-app"
 
-
 # version: 2.1
 # # orbs:
 # #   docker: circleci/docker@1.4.0
@@ -290,64 +282,62 @@ workflows:
 #       - run: docker swarm init
 #       - run: docker stack deploy -c ~/project/docker-compose.yml --with-registry-auth my-angular-app
 
+#   executor: kubernetes
+#   steps:
+#     - run: helm init --client-only
+#     - run: helm upgrade --install my-angular-app --set image.repository=$DOCKER_LOGIN/my-angular-app --namespace my-namespace charts/my-angular-app
 
-  #   executor: kubernetes
-  #   steps:
-  #     - run: helm init --client-only
-  #     - run: helm upgrade --install my-angular-app --set image.repository=$DOCKER_LOGIN/my-angular-app --namespace my-namespace charts/my-angular-app
-
-  # provision:
-  #   docker:
-  #     - image: cimg/node:16.10
-  #   steps:
-  #     - setup_remote_docker:
-  #         version: 20.10.14
-  #     - run: wget https://releases.hashicorp.com/terraform/0.14.8/terraform_0.14.8_linux_amd64.zip
-  #     - run: unzip terraform_0.14.8_linux_amd64.zip -d /usr/local/bin/
-  #     - run: terraform init
-  #     - run: terraform apply -auto-approve
-  # export:
-  #   steps:
-  #     - run: export DEPLOYMENT_URL=$(terraform output deployment_url)
-  # deploy:
-  #   steps:
-  #     - run: terraform import vercel_deployment.example $DEPLOYMENT_URL
-  #     - run: terraform apply -var "vercel_token=${VERCEL_TOKEN}" -auto-approve
-  #   requires:
-  #     - build
-  #     - provision
-  #     - export
-  # deploy:
-  #   docker:
-  #     - image: cimg/node:16.10
-  #   steps:
-  #     - run:
-  #         name: Connect to Play with Docker via SSH
-  #         command: |
-  #           # Get the public IP address of the Play with Docker node
-  #           #export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
-  #           export PWD_IP=192.168.0.7
-  #           # Connect to the Play with Docker node via SSH
-  #           ssh ip172-18-0-94-cere7ov91rrg00cdnimg
-  #     - run:
-  #         name: Deploy to Play with Docker
-  #         command: |
-  #           #Deploy the Docker image to the Play with Docker node
-  #           docker run -p 8080:80 seckndanane/my-angular-app
-  #     - run:
-  #         name: Check deployment
-  #         command: |
-  #           # Check if the deployment was successful by accessing the application through the public IP address
-  #           curl http://$PWD_IP:8080
-      # terraform-deploy:
-  #   docker:
-  #     - image: hashicorp/terraform-k8s
-  #   steps:
-  #     - checkout
-  #     - run: terraform init
-  #     - run: terraform plan
-  #     - run: terraform apply
-
+# provision:
+#   docker:
+#     - image: cimg/node:16.10
+#   steps:
+#     - setup_remote_docker:
+#         version: 20.10.14
+#     - run: wget https://releases.hashicorp.com/terraform/0.14.8/terraform_0.14.8_linux_amd64.zip
+#     - run: unzip terraform_0.14.8_linux_amd64.zip -d /usr/local/bin/
+#     - run: terraform init
+#     - run: terraform apply -auto-approve
+# export:
+#   steps:
+#     - run: export DEPLOYMENT_URL=$(terraform output deployment_url)
+# deploy:
+#   steps:
+#     - run: terraform import vercel_deployment.example $DEPLOYMENT_URL
+#     - run: terraform apply -var "vercel_token=${VERCEL_TOKEN}" -auto-approve
+#   requires:
+#     - build
+#     - provision
+#     - export
+# deploy:
+#   docker:
+#     - image: cimg/node:16.10
+#   steps:
+#     - run:
+#         name: Connect to Play with Docker via SSH
+#         command: |
+#           # Get the public IP address of the Play with Docker node
+#           #export PWD_IP=$(ip a | grep 'inet ' | cut -d' ' -f6 | cut -d/ -f1)
+#           export PWD_IP=192.168.0.7
+#           # Connect to the Play with Docker node via SSH
+#           ssh ip172-18-0-94-cere7ov91rrg00cdnimg
+#     - run:
+#         name: Deploy to Play with Docker
+#         command: |
+#           #Deploy the Docker image to the Play with Docker node
+#           docker run -p 8080:80 seckndanane/my-angular-app
+#     - run:
+#         name: Check deployment
+#         command: |
+#           # Check if the deployment was successful by accessing the application through the public IP address
+#           curl http://$PWD_IP:8080
+# terraform-deploy:
+#   docker:
+#     - image: hashicorp/terraform-k8s
+#   steps:
+#     - checkout
+#     - run: terraform init
+#     - run: terraform plan
+#     - run: terraform apply
 
 # #This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 # version: 2.1
@@ -381,9 +371,6 @@ workflows:
 #       # - run: npm test
 #       - run: npm run build
 
-
-
-
 # version: 2.1
 
 # jobs:
@@ -400,9 +387,6 @@ workflows:
 #           name: Deploy to Kubernetes
 #           command: |
 #             kubectl set image deployment/my-deployment my-container=my-image
-
-
-
 
 # version: 2.1
 # orbs:
