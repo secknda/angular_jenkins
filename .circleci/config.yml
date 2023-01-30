@@ -6,32 +6,32 @@ orbs:
   aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
 
 jobs:
-  # build:
-  #   docker:
-  #     # specify the version you desire here
-  #     - image: cimg/node:16.10
+  build:
+    docker:
+      # specify the version you desire here
+      - image: cimg/node:16.10
 
-  #     # Specify service dependencies here if necessary
-  #     # CircleCI maintains a library of pre-built images
-  #     # documented at https://circleci.com/docs/2.0/circleci-images/
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
 
-  #   working_directory: ~/repo
+    working_directory: ~/repo
 
-  #   steps:
-  #     - checkout
+    steps:
+      - checkout
 
-  #     # Download and cache dependencies
-  #     - restore_cache:
-  #         keys:
-  #           - v1-dependencies-{{ checksum "package.json" }}
-  #           # fallback to using the latest cache if no exact match is found
-  #           - v1-dependencies-
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
-  #     - run: npm install
-  #     - save_cache:
-  #         paths:
-  #           - node_modules
-  #         key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
   # aws-ecr/build-and-push-image:
   #   docker: # Specify executor for running build job - this example uses a Docker container
   #     - image: cimg/node:16.10 # Specify docker image to use
@@ -78,10 +78,10 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      # - build
+      - build
       - aws-ecr/build-and-push-image: # orb built-in job
-          # requires:
-          #   - build
+          requires:
+            - build
           repo: "${MY_APP_PREFIX}"
           tag: "${CIRCLE_SHA1}"
           # account-url: AWS_ACCOUNT_ID
