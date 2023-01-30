@@ -1,0 +1,27 @@
+{
+    "provider": {
+      "aws": {
+        "region": "us-west-2"
+      }
+    },
+    "version": "0.13",
+    "resources": [
+      {
+        "type": "aws_instance",
+        "name": "example_instance",
+        "properties": {
+          "instance_type": "t2.micro",
+          "ami": "ami-0c55b159cbfafe1f0"
+        }
+      }
+    ],
+    "variables": {
+      "instance_type": "t2.micro"
+    },
+    "outputs": {
+      "instance_id": {
+        "value": "${aws_instance.example_instance.id}"
+      }
+    }
+  }
+  
