@@ -6,27 +6,53 @@ orbs:
   aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
 
 jobs:
-  aws-ecr/build-and-push-image:
-    docker: # Specify executor for running build job - this example uses a Docker container
-      - image: cimg/node:16.10 # Specify docker image to use
-        auth:
-            username: $DOCKER_LOGIN 
-            password: $DOCKER_PASSWORD  # context / project UI env-var reference
-                           # build job steps omitted for brevity
-    steps:
+  # build:
+  #   docker:
+  #     # specify the version you desire here
+  #     - image: cimg/node:16.10 
+
+  #     # Specify service dependencies here if necessary
+  #     # CircleCI maintains a library of pre-built images
+  #     # documented at https://circleci.com/docs/2.0/circleci-images/
+
+  #   working_directory: ~/repo
+
+  #   steps:
+  #     - checkout
+
+  #     # Download and cache dependencies
+  #     - restore_cache:
+  #         keys:
+  #           - v1-dependencies-{{ checksum "package.json" }}
+  #           # fallback to using the latest cache if no exact match is found
+  #           - v1-dependencies-
+
+  #     - run: npm install
+  #     - save_cache:
+  #         paths:
+  #           - node_modules
+  #         key: v1-dependencies-{{ checksum "package.json" }}
+  # aws-ecr/build-and-push-image:
+  #   docker: # Specify executor for running build job - this example uses a Docker container
+  #     - image: cimg/node:16.10 # Specify docker image to use
+  #       auth:
+  #           username: $DOCKER_LOGIN 
+  #           password: $DOCKER_PASSWORD  # context / project UI env-var reference
+  #                          # build job steps omitted for brevity
+  #   steps:
     
-      - run:
-          name: Authentification Client setup_remote_docker
-          command: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 260248989732.dkr.ecr.us-east-1.amazonaws.com
-      - run: 
-          name: Build the image
-          command: docker build -t my-angular-app .
-      - run:
-          name: Tag the image
-          command: docker tag my-angular-app:latest 260248989732.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
-      - run: 
-          name: Push The image to Docker Hub
-          command: docker push 260248989732.dkr.ecr.us-east-1.amazonaws.com/my-angular-app:latest
+  #     - run:
+  #         name: Authentification Client setup_remote_docker
+  #         command: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 260248989732.dkr.ecr.us-east-1.amazonaws.com
+  #     - run: 
+  #         name: Build the image
+  #         command: docker build -t my-angular-app .
+  #     - run:
+  #         name: Tag the image
+  #         command: docker tag my-angular-app:latest 260248989732.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
+  #     - run: 
+  #         name: Push The image to AWS ECR
+  #         command: docker push 260248989732.dkr.ecr.us-east-1.amazonaws.com/my-angular-app:latest
   verify-deployment:
     executor: aws-cli/default
     steps:
@@ -52,9 +78,18 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
+      # - build
       - aws-ecr/build-and-push-image: # orb built-in job
+          # requires:
+          #   - build
           repo: '${MY_APP_PREFIX}'
           tag: '${CIRCLE_SHA1}'
+          account-url: AWS_ACCOUNT_ID
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          dockerfile: "Dockerfile"
+          region: AWS_REGION
       - aws-ecs/deploy-service-update: # orb built-in job
           requires:
             - aws-ecr/build-and-push-image
