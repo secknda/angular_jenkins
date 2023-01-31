@@ -82,7 +82,7 @@ workflows:
       - aws-ecr/build-and-push-image: # orb built-in job
           requires:
             - build
-          repo: "${MY_APP_PREFIX}"
+          repo: myapp
           tag: "${CIRCLE_SHA1}"
           path: .
           # account-url: AWS_ECR_ACCOUNT_URL
@@ -91,7 +91,7 @@ workflows:
           # registry-id: AWS_ECR_REGISTRY_ID
           create-repo: true
           dockerfile: "Dockerfile"
-          # region: AWS_REGION
+          # region: '${AWS_REGION}'
       - aws-ecs/deploy-service-update: # orb built-in job
           requires:
             - aws-ecr/build-and-push-image
