@@ -70,6 +70,9 @@ jobs:
                 --query 'taskDefinition.taskDefinitionArn')
             echo "export TASK_DEFINITION_ARN='${TASK_DEFINITION_ARN}'" >>
             "$BASH_ENV"
+      - run:
+          name: test connect ecr 
+          command: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 260248989732.dkr.ecr.us-east-1.amazonaws.com
       - aws-ecs/verify-revision-is-deployed:
           family: "${MY_APP_PREFIX}-service"
           cluster: "${MY_APP_PREFIX}-cluster"
@@ -92,15 +95,15 @@ workflows:
           create-repo: true
           dockerfile: "Dockerfile"
           # region: '${AWS_REGION}'
-      - aws-ecs/deploy-service-update: # orb built-in job
-          requires:
-            - aws-ecr/build-and-push-image
-          family: "${MY_APP_PREFIX}-service"
-          cluster: "${MY_APP_PREFIX}-cluster"
-          container-image-name-updates: "container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}"
-      - verify-deployment:
-          requires:
-            - aws-ecs/deploy-service-update
+      # - aws-ecs/deploy-service-update: # orb built-in job
+      #     requires:
+      #       - aws-ecr/build-and-push-image
+      #     family: "${MY_APP_PREFIX}-service"
+      #     cluster: "${MY_APP_PREFIX}-cluster"
+      #     container-image-name-updates: "container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}"
+      # - verify-deployment:
+      #     requires:
+      #       - aws-ecs/deploy-service-update
 # version: 2.1
 
 # workflows: # Define a Workflow running the build job, then the deploy job
