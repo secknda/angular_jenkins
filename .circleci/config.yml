@@ -90,7 +90,7 @@ workflows:
           registry-id: AWS_ECR_REGISTRY_ID
           create-repo: true
           dockerfile: "Dockerfile"
-          aws-region: AWS_DEFAULT_REGION
+          aws-region: AWS_REGION
       - aws-ecs/deploy-service-update: # orb built-in job
           requires:
             - aws-ecr/build-and-push-image
