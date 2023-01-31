@@ -4,7 +4,7 @@ FROM node:16.10
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json config.json ./
 RUN npm install
 
 # Bundle app source
