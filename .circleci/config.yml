@@ -66,7 +66,7 @@ workflows:
           requires:
             - build
           repo: myapp
-          tag: "${MY_APP_PREFIX}-image"
+          tag: "${CIRCLE_SHA1}"
           path: .
           create-repo: true
           dockerfile: "Dockerfile"
@@ -76,7 +76,7 @@ workflows:
             - aws-ecr/build-and-push-image
           family: "${MY_APP_PREFIX}-tache"
           cluster: "${MY_APP_PREFIX}-cluster"
-          container-image-name-updates: "container=${MY_APP_PREFIX}-tache,tag=${MY_APP_PREFIX}-image"
+          container-image-name-updates: "container=${MY_APP_PREFIX}-tache,tag=${CIRCLE_SHA1}"
       # - verify-deployment:
       #     requires:
       #       - aws-ecs/deploy-service-update
