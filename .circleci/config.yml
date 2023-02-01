@@ -46,7 +46,7 @@ jobs:
           name: Get last task definition
           command: >
             TASK_DEFINITION_ARN=$(aws ecs describe-task-definition \
-                --task-definition ${MY_APP_PREFIX}-service \
+                --task-definition ${MY_APP_PREFIX}-tache \
                 --output text \
                 --query 'taskDefinition.taskDefinitionArn')
             echo "export TASK_DEFINITION_ARN='${TASK_DEFINITION_ARN}'" >>
@@ -76,7 +76,7 @@ workflows:
             - aws-ecr/build-and-push-image
           family: "${MY_APP_PREFIX}-tache"
           cluster: "${MY_APP_PREFIX}-cluster"
-          container-image-name-updates: "container=${MY_APP_PREFIX}-tache,tag=${CIRCLE_SHA1}"
+          container-image-name-updates: "container=angular,tag=${CIRCLE_SHA1}"
       # - verify-deployment:
       #     requires:
       #       - aws-ecs/deploy-service-update
