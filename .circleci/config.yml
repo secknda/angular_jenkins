@@ -66,7 +66,7 @@ workflows:
           requires:
             - build
           repo: myapp
-          tag: "${CIRCLE_SHA1}"
+          tag: "latest"
           path: .
           create-repo: true
           dockerfile: "Dockerfile"
@@ -77,7 +77,7 @@ workflows:
           
           family: "${MY_APP_PREFIX}-tache"
           cluster: "${MY_APP_PREFIX}-cluster"
-          container-image-name-updates: "container=${MY_APP_PREFIX}-tache,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:${CIRCLE_SHA1}"
+          container-image-name-updates: "container=${MY_APP_PREFIX}-container,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:latest"
           # container-image-name-updates: "container=${MY_APP_PREFIX}-container,tag=${MY_APP_PREFIX}-image"
       # - verify-deployment:
       #     requires:
