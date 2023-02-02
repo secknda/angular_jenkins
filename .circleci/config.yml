@@ -75,9 +75,9 @@ workflows:
           requires:
             - aws-ecr/build-and-push-image
           
-          family: "${MY_APP_PREFIX}-services"
+          family: "${MY_APP_PREFIX}-tache"
           cluster: "${MY_APP_PREFIX}-cluster"
-          container-image-name-updates: "container=${MY_APP_PREFIX}-services,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:${CIRCLE_SHA1}"
+          container-image-name-updates: "container=${MY_APP_PREFIX}-tache,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:${CIRCLE_SHA1}"
           # container-image-name-updates: "container=${MY_APP_PREFIX}-container,tag=${MY_APP_PREFIX}-image"
       # - verify-deployment:
       #     requires:
