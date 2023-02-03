@@ -75,7 +75,7 @@ workflows:
           requires:
             - aws-ecr/build-and-push-image
           
-          family: "${MY_APP_PREFIX}-service"
+          family: "${MY_APP_PREFIX}-tache"
           cluster: "${MY_APP_PREFIX}-cluster"
           # service: "${MY_APP_PREFIX}-service"
           container-image-name-updates: "${MY_APP_PREFIX}-container=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/myapp:latest"
