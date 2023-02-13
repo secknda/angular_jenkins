@@ -1,11 +1,33 @@
-version: '3'
+version: "3.7"
 services:
-  web:
-    image: seckndanane/my-angular-app:latest
+  myapp:
+    image: $DOCKER_LOGIN/myapp:latest
+  
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.role == worker
+      update_config:
+        parallelism: 2
+        delay: 10s
     ports:
-      - "4200:4200"
-    environment:
-      - NG_APP_ENV=production
-    volumes:
-      - .:/app
-    command: "npm start"
+      - "80:80"
+    networks:
+      - mynet
+networks:
+  mynet:
+
+
+
+# version: '3'
+# services:
+#   web:
+#     image: seckndanane/my-angular-app:latest
+#     ports:
+#       - "4200:4200"
+#     environment:
+#       - NG_APP_ENV=production
+#     volumes:
+#       - .:/app
+#     command: "npm start"
