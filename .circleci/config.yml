@@ -74,9 +74,9 @@ workflows:
       - aws-ecs/deploy-service-update: # orb built-in job
           requires:
             - aws-ecr/build-and-push-image
-          family: "${MY_APP_PREFIX}-task"
+          family: "appservice"
           cluster: "devCluster"
-          # service: "${MY_APP_PREFIX}-service"
+          #service: "appservice"
           container-image-name-updates: "container=${MY_APP_PREFIX}-container,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/${MY_APP_PREFIX}:latest"
       - verify-deployment:
           requires:
