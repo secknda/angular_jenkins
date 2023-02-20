@@ -77,7 +77,7 @@ workflows:
           family: "myapp-task"
           cluster: "devCluster"
           service-name: "appservice"
-          container-image-name-updates: "container=${MY_APP_PREFIX}-container,tag=${CIRCLE_SHA1}"
+          container-image-name-updates: "${MY_APP_PREFIX}-container=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:${CIRCLE_SHA1}"
       - verify-deployment:
           requires:
             - aws-ecs/deploy-service-update
