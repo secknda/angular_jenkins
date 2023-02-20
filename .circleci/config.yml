@@ -85,11 +85,11 @@ workflows:
       - deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
-          family: "myapp-task"
-          cluster: "devCluster"
-          service-name: "appservice"
-          container-image-name-updates: "${MY_APP_PREFIX}-container=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:${CIRCLE_SHA1}"
-      # - verify-deployment:
+      #     family: "myapp-task"
+      #     cluster: "devCluster"
+      #     service-name: "appservice"
+      #     container-image-name-updates: "${MY_APP_PREFIX}-container=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:${CIRCLE_SHA1}"
+      # # - verify-deployment:
       #     requires:
       #       - deploy-service-update
 # version: 2.1
