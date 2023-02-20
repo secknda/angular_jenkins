@@ -77,9 +77,10 @@ workflows:
             - build
           repo: myapp
           path: . 
-          tag: ${CIRCLE_SHA1}"
-          create-repo: true
           dockerfile: "Dockerfile"
+          tag: "${CIRCLE_SHA1}"
+          create-repo: true
+          
     
       # - aws-ecs/deploy-service-update: # orb built-in job
       - deploy-service-update:
