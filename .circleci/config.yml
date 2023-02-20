@@ -32,7 +32,17 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-
+  deploy-service-update:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/install
+      - aws-cli/setup:
+          aws-access-key-id: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_DEFAULT_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - run:
+          name: Update Service
+          command: aws ecs update-service --cluster devCluster --service appservice --force-new-deployment
 
   verify-deployment:
     executor: aws-cli/default
@@ -46,7 +56,7 @@ jobs:
           name: Get last task definition
           command: >
             TASK_DEFINITION_ARN=$(aws ecs describe-task-definition \
-                --task-definition ${MY_APP_PREFIX}-tache \
+                --task-definition ${MY_APP_PREFIX}-task \
                 --output text \
                 --query 'taskDefinition.taskDefinitionArn')
             echo "export TASK_DEFINITION_ARN='${TASK_DEFINITION_ARN}'" >>
@@ -66,20 +76,22 @@ workflows:
           requires:
             - build
           repo: myapp
-          tag: '${CIRCLE_SHA1}'
           path: . 
+          tag: ${CIRCLE_SHA1}"
           create-repo: true
           dockerfile: "Dockerfile"
     
-      - aws-ecs/deploy-service-update: # orb built-in job
+      # - aws-ecs/deploy-service-update: # orb built-in job
+      - deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
-          family: "${MY_APP_PREFIX}-task"
+          family: "myapp-task"
           cluster: "devCluster"
+          service-name: "appservice"
           container-image-name-updates: "${MY_APP_PREFIX}-container=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${MY_APP_PREFIX}:${CIRCLE_SHA1}"
-      - verify-deployment:
-          requires:
-            - aws-ecs/deploy-service-update
+      # - verify-deployment:
+      #     requires:
+      #       - deploy-service-update
 # version: 2.1
 
 # workflows: # Define a Workflow running the build job, then the deploy job
