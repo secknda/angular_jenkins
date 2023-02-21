@@ -4,6 +4,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@8.1.2 # use the AWS ECR orb
   aws-ecs: circleci/aws-ecs@3.2.0 # use the AWS ECS orb
   aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
+  aws-code-deploy: circleci/aws-code-deploy@2.0.0
 
 jobs:
   build:
@@ -32,6 +33,49 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+
+  terraform-apply:
+    executor: terraform/default
+    steps:
+      - checkout
+      - aws-cli/setup:
+          aws-access-key-id: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_DEFAULT_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - terraform/init:
+          backend-config: "bucket=my-terraform-state-bucket"
+      - terraform/apply:
+          auto_approve: true
+  docker-build-and-push:
+    # docker: # Specify executor for running build job - this example uses a Docker container
+    executor: docker/default # Specify docker image to use
+        
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Image and Push
+          command: |
+            docker build -t myapp:$CIRCLE_SHA1 .
+            docker tag myapp:$CIRCLE_SHA1 myapp:latest
+            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+            docker tag myapp:latest $DOCKERHUB_USERNAME/myapp:latest
+            docker tag myapp:$CIRCLE_SHA1 $DOCKERHUB_USERNAME/myapp:$CIRCLE_SHA1
+            docker push $DOCKERHUB_USERNAME/myapp:latest
+            docker push $DOCKERHUB_USERNAME/myapp:$CIRCLE_SHA1
+      - run:
+          name: Build the image
+          command: docker build -t my-angular-app:$CIRCLE_SHA1 .
+      
+      - run:
+          name: Connexion to Docker
+          command: echo $DOCKER_PASSWORD | docker login -u $DOCKER_LOGIN --password-stdin
+      - run:
+          name: Tag the image
+          command: docker tag my-angular-app:$CIRCLE_SHA1  $DOCKER_LOGIN/my-angular-app:latest
+      - run:
+          name: Push The image to Docker Hub
+          command: docker push $DOCKER_LOGIN/my-angular-app:latest
   deploy-service-update:
     executor: aws-cli/default
     steps:
@@ -43,6 +87,8 @@ jobs:
       - run:
           name: Update Service
           command: aws ecs update-service --cluster devCluster --service appservice --force-new-deployment
+
+  
 
   verify-deployment:
     executor: aws-cli/default
@@ -71,10 +117,15 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-
-      - aws-ecr/build-and-push-image: # orb built-in job
+      - terraform-apply:
           requires:
             - build
+      - docker-build-and-push:
+          requires:
+            - terraform-apply
+      - aws-ecr/build-and-push-image: # orb built-in job
+          requires:
+            - docker-build-and-push
           repo: myapp
           path: . 
           dockerfile: "Dockerfile"

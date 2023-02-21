@@ -11,7 +11,7 @@ terraform {
   }
   backend "s3" {
     bucket = "devops-tf-circleci"
-    key    = "platform.tfstate"
+    key    = "my.terraform.state.bucket"
     region = "us-east-1"
   }
 }
