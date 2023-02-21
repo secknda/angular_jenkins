@@ -5,6 +5,7 @@ orbs:
   aws-ecs: circleci/aws-ecs@3.2.0 # use the AWS ECS orb
   aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
   aws-code-deploy: circleci/aws-code-deploy@2.0.0
+  terraform: circleci/terraform@3.1
 
 jobs:
   build:
