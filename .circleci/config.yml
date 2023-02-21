@@ -44,7 +44,7 @@ jobs:
           aws-region: AWS_DEFAULT_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
       - terraform/init:
-          backend-config: "bucket=my-terraform-state-bucket"
+          # backend-config: "bucket=my-terraform-state-bucket"
       - terraform/apply:
           auto_approve: true
   docker-build-and-push:
