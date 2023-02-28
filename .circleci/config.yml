@@ -77,11 +77,11 @@ jobs:
           command: |
             docker build -t myapp:$CIRCLE_SHA1 .
             docker tag myapp:$CIRCLE_SHA1 myapp:latest
-            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
-            docker tag myapp:latest $DOCKERHUB_USERNAME/myapp:latest
-            docker tag myapp:$CIRCLE_SHA1 $DOCKERHUB_USERNAME/myapp:$CIRCLE_SHA1
-            docker push $DOCKERHUB_USERNAME/myapp:latest
-            docker push $DOCKERHUB_USERNAME/myapp:$CIRCLE_SHA1
+            echo $DOCKER_PASSWORD| docker login -u $DOCKER_LOGIN --password-stdin -t 0
+            docker tag myapp:latest $DOCKER_LOGIN/myapp:latest
+            docker tag myapp:$CIRCLE_SHA1 $DOCKER_LOGIN/myapp:$CIRCLE_SHA1
+            docker push $DOCKER_LOGIN/myapp:latest
+            docker push $DOCKER_LOGIN/myapp:$CIRCLE_SHA1
   deploy-service-update:
     executor: aws-cli/default
     steps:
