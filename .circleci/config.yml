@@ -30,7 +30,7 @@ jobs:
             - v1-dependencies-
 
       - run: npm cache clean --force
-      - run: npm install -g @angular/cli@latest
+      # - run: npm install -g @angular/cli@latest
       - save_cache:
           paths:
             - node_modules
