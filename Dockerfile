@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 EXPOSE 80
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "start" ]
 
 
 # # Use the node:14 image as the base image
