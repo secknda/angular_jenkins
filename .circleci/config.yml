@@ -148,7 +148,7 @@ workflows:
             - terraform/plan
       - docker-build-and-push:
           requires:
-            - terraform-apply
+            - terraform/apply
       - aws-ecr/build-and-push-image: # orb built-in job
           requires:
             - docker-build-and-push
