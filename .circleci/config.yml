@@ -39,28 +39,28 @@ jobs:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - run: 
+      - run:
           name: Terraform fmt
           command: terraform fmt -check=true -diff=true
   terraform/validate:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - run: 
+      - run:
           name: Terraform Validate
           command: terraform validate
   terraform/plan:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - run: 
+      - run:
           name: Terraform plan
           command: terraform plan
   terraform/apply:
     docker:
       - image: hashicorp/terraform:latest
     steps:
-      - run: 
+      - run:
           name: Terraform Apply
           command: terraform apply -var 'docker_image_version=my-angular-app:latest'
 
@@ -93,8 +93,6 @@ jobs:
           name: Update Service
           command: aws ecs update-service --cluster devCluster --service appservice --force-new-deployment
 
-  
-
   verify-deployment:
     executor: aws-cli/default
     steps:
@@ -112,7 +110,7 @@ jobs:
                 --query 'taskDefinition.taskDefinitionArn')
             echo "export TASK_DEFINITION_ARN='${TASK_DEFINITION_ARN}'" >>
             "$BASH_ENV"
-    
+
       - aws-ecs/verify-revision-is-deployed:
           family: "${MY_APP_PREFIX}-service"
           cluster: "${MY_APP_PREFIX}-cluster"
@@ -124,23 +122,23 @@ workflows:
       - build
       - terraform/fmt:
           checkout: true
-          context: terraform
+          # context: terraform
           requires:
             - build
       - terraform/validate:
           checkout: true
-          context: terraform
+          # context: terraform
           requires:
             - terraform/fmt
       - terraform/plan:
           checkout: true
-          context: terraform
+          # context: terraform
           persist-workspace: true
           requires:
             - terraform/validate
       - terraform/apply:
           attach-workspace: true
-          context: terraform
+          # context: terraform
           filters:
             branches:
               only: main
@@ -153,12 +151,11 @@ workflows:
           requires:
             - docker-build-and-push
           repo: myapp
-          path: . 
+          path: .
           dockerfile: "Dockerfile"
           tag: "${CIRCLE_SHA1}"
           create-repo: true
-          
-    
+
       # - aws-ecs/deploy-service-update: # orb built-in job
       - deploy-service-update:
           requires:
