@@ -35,18 +35,35 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-  terraform-apply:
-    executor: terraform/default
+  terraform/fmt:
+    docker:
+      - image: hashicorp/terraform:latest
     steps:
-      - checkout
-      - aws-cli/setup:
-          aws-access-key-id: AWS_SECRET_ACCESS_KEY
-          aws-region: AWS_DEFAULT_REGION
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-      - terraform/init:
-          # backend-config: "bucket=my-terraform-state-bucket"
-      - terraform/apply:
-          auto_approve: true
+      - run: 
+          name: Terraform fmt
+          command: terraform fmt -check=true -diff=true
+  terraform/validate:
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - run: 
+          name: Terraform Validate
+          command: terraform validate
+  terraform/plan:
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - run: 
+          name: Terraform plan
+          command: terraform plan
+  terraform/apply:
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - run: 
+          name: Terraform Apply
+          command: terraform apply -var 'docker_image_version=my-angular-app:latest'
+
   docker-build-and-push:
     # docker: # Specify executor for running build job - this example uses a Docker container
     executor: docker/default # Specify docker image to use
@@ -64,19 +81,6 @@ jobs:
             docker tag myapp:$CIRCLE_SHA1 $DOCKERHUB_USERNAME/myapp:$CIRCLE_SHA1
             docker push $DOCKERHUB_USERNAME/myapp:latest
             docker push $DOCKERHUB_USERNAME/myapp:$CIRCLE_SHA1
-      - run:
-          name: Build the image
-          command: docker build -t my-angular-app:$CIRCLE_SHA1 .
-      
-      - run:
-          name: Connexion to Docker
-          command: echo $DOCKER_PASSWORD | docker login -u $DOCKER_LOGIN --password-stdin
-      - run:
-          name: Tag the image
-          command: docker tag my-angular-app:$CIRCLE_SHA1  $DOCKER_LOGIN/my-angular-app:latest
-      - run:
-          name: Push The image to Docker Hub
-          command: docker push $DOCKER_LOGIN/my-angular-app:latest
   deploy-service-update:
     executor: aws-cli/default
     steps:
@@ -118,9 +122,30 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - terraform-apply:
+      - terraform/fmt:
+          checkout: true
+          context: terraform
           requires:
             - build
+      - terraform/validate:
+          checkout: true
+          context: terraform
+          requires:
+            - terraform/fmt
+      - terraform/plan:
+          checkout: true
+          context: terraform
+          persist-workspace: true
+          requires:
+            - terraform/validate
+      - terraform/apply:
+          attach-workspace: true
+          context: terraform
+          filters:
+            branches:
+              only: main
+          requires:
+            - terraform/plan
       - docker-build-and-push:
           requires:
             - terraform-apply
