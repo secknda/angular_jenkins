@@ -77,7 +77,7 @@ jobs:
           command: |
             docker build -t myapp:$CIRCLE_SHA1 .
             docker tag myapp:$CIRCLE_SHA1 myapp:latest
-            echo $DOCKER_PASSWORD| docker login -u $DOCKER_LOGIN --password-stdin -t 0
+            echo $DOCKER_PASSWORD| docker login -u $DOCKER_LOGIN --password-stdin
             docker tag myapp:latest $DOCKER_LOGIN/myapp:latest
             docker tag myapp:$CIRCLE_SHA1 $DOCKER_LOGIN/myapp:$CIRCLE_SHA1
             docker push $DOCKER_LOGIN/myapp:latest
