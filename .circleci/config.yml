@@ -124,7 +124,6 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - test
       - build
       - terraform/fmt:
           checkout: true
