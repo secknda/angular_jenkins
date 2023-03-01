@@ -36,6 +36,47 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
+  test:
+    working_directory: ~/project-name
+    docker:
+        - image: circleci/node:10-browsers
+          auth:
+            username: $DOCKER_LOGIN
+            password: $DOCKER_PASSWORD
+    steps:
+      # Checkout the code from the branch into the working_directory
+      - checkout
+      # Log the current branch
+      - run:
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
+      # Restore local dependencies from cache
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package-lock.json" }}
+          - v1-dependencies-
+      # Install project dependencies
+      - run:
+          name: Install local dependencies
+          command: npm install
+      # Cache local dependencies if they don't exist
+      - save_cache:
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          paths:
+              - node_modules
+      # Lint the source code
+      - run:
+          name: Linting
+          command: npm run lint
+      # Test the source code
+      - run:
+          name: Testing
+          command: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      # End to End test
+      - run:
+          name: End to End Test
+          command: npm run e2e -- --protractor-config=e2e/protractor-ci.conf.js
+
   terraform/fmt:
     docker:
       - image: hashicorp/terraform:latest
@@ -82,9 +123,9 @@ jobs:
             docker tag myapp:$CIRCLE_SHA1 $DOCKER_LOGIN/myapp:$CIRCLE_SHA1
             docker push $DOCKER_LOGIN/myapp:latest
             docker push $DOCKER_LOGIN/myapp:$CIRCLE_SHA1
-      - run:
-          name: store_test_results
-          command: npm test --no-watch --no-progress --browsers=Chrome
+      # - run:
+      #     name: store_test_results
+      #     command: npm test --no-watch --no-progress --browsers=Chrome
   
   deploy-service-update:
     executor: aws-cli/default
@@ -124,7 +165,10 @@ jobs:
 workflows:
   build-and-deploy:
     jobs:
-      - build
+      - test
+      - build:
+          requires:
+              - test
       - terraform/fmt:
           checkout: true
           context: terraform

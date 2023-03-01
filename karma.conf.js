@@ -33,19 +33,19 @@ module.exports = function (config) {
       ]
     },
     
-    // browsers: ['Chrome'],
-    // customLaunchers: {
-    // ChromeHeadlessCI: {
-    //   base: 'ChromeHeadless',
-    //   flags: ['–no-sandbox']
-    // }
-    // },
+    customLaunchers: {
+        ChromeHeadlessCI: {
+            base: 'ChromeHeadless',
+            flags: ['--no-sandbox']
+        }
+    },
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadlessCI'],
+    // browsers: ['Chrome'],
     singleRun: false,
     restartOnFileChange: true
   });
