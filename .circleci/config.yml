@@ -64,6 +64,9 @@ jobs:
           key: v1-dependencies-{{ checksum "package-lock.json" }}
           paths:
               - node_modules
+      - run:
+          name: Set CHROME_BIN
+          command: echo 'export CHROME_BIN='C:\Program Files\Google\Chrome\Application\chrome.exe'' >> $BASH_ENV
       # Test the source code
       - run:
           name: Testing
