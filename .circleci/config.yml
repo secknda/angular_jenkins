@@ -84,7 +84,7 @@ jobs:
             docker push $DOCKER_LOGIN/myapp:$CIRCLE_SHA1
       - run:
           name: store_test_results
-          command: ng test --no-watch --no-progress --browsers=Chrome
+          command: npm test --no-watch --no-progress --browsers=Chrome
   
   deploy-service-update:
     executor: aws-cli/default
