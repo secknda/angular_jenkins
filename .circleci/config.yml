@@ -39,7 +39,7 @@ jobs:
   test:
     working_directory: ~/project-name
     docker:
-        - image: cimg/node:19.7.0-browsers
+        - image: circleci/node:19.7.0-browsers
           auth:
             username: $DOCKER_LOGIN
             password: $DOCKER_PASSWORD
@@ -66,11 +66,8 @@ jobs:
               - node_modules
       - run:
           name: Set CHROME_BIN
-          command: echo 'export CHROME_BIN='C:\Program Files\Google\Chrome\Application\chrome.exe'' >> $BASH_ENV
+          command: echo 'export CHROME_BIN=/usr/bin/google-chrome' >> $BASH_ENV
       # Test the source code
-      - run:
-          name: Set CHROME_BIN
-          command: echo 'export CHROME_BIN='C:\Program Files\Google\Chrome\Application\chrome.exe'' >> $BASH_ENV
       - run:
           name: Testing
           command: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
