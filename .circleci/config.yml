@@ -66,6 +66,9 @@ jobs:
               - node_modules
       # Test the source code
       - run:
+          name: Set CHROME_BIN
+          command: echo 'export CHROME_BIN='C:\Program Files\Google\Chrome\Application\chrome.exe'' >> $BASH_ENV
+      - run:
           name: Testing
           command: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
       # End to End test
