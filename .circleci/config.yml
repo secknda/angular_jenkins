@@ -39,7 +39,7 @@ jobs:
   test:
     working_directory: ~/project-name
     docker:
-        - image: circleci/node:19.7.0-browsers
+        - image: cimg/node:19.7.0-browsers
           auth:
             username: $DOCKER_LOGIN
             password: $DOCKER_PASSWORD
