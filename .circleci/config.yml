@@ -45,8 +45,6 @@ jobs:
             username: $DOCKER_LOGIN
             password: $DOCKER_PASSWORD
     steps:
-      - run: google-chrome --version
-
       # Checkout the code from the branch into the working_directory
       - checkout
       # Log the current branch
