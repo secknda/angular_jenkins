@@ -6,6 +6,7 @@ orbs:
   aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
   aws-code-deploy: circleci/aws-code-deploy@2.0.0
   terraform: circleci/terraform@3.1
+  browser-tools: circleci/browser-tools@1.1.0
 
 jobs:
   build:
@@ -39,7 +40,7 @@ jobs:
   test:
     working_directory: ~/project-name
     docker:
-        - image: cimg/node:19.7.0-browsers
+        - image: cimg/node:15.0.1-browsers
           auth:
             username: $DOCKER_LOGIN
             password: $DOCKER_PASSWORD
