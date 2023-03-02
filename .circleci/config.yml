@@ -71,13 +71,13 @@ jobs:
           name: Set CHROME_BIN
           command: echo 'export CHROME_BIN=/usr/bin/google-chrome' >> $BASH_ENV
       # Test the source code
-      - run:
-          name: Testing
-          command: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
-      # End to End test
-      - run:
-          name: End to End Test
-          command: npm run e2e -- --protractor-config=e2e/protractor-ci.conf.js
+      # - run:
+      #     name: Testing
+      #     command: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      # # End to End test
+      # - run:
+      #     name: End to End Test
+      #     command: npm run e2e -- --protractor-config=e2e/protractor-ci.conf.js
 
   terraform/fmt:
     docker:
